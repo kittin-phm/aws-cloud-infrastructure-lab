@@ -5,7 +5,6 @@ compute auto scaling, managed database, and monitoring.
 
 ## 🏛️ Architecture
 
-git add README.md### VPC & Network Design
 ![VPC Architecture](architecture/VPC-diagram.png)
 
 ### ALB & Auto Scaling Setup

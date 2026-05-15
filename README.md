@@ -5,7 +5,11 @@ compute auto scaling, managed database, and monitoring.
 
 ## 🏛️ Architecture
 
-![Architecture](architecture/diagram.png)
+git add README.md### VPC & Network Design
+![VPC Architecture](architecture/VPC-diagram.png)
+
+### ALB & Auto Scaling Setup
+![ALB Architecture](architecture/ALB-diagram.png)
 
 ## ☁️ AWS Services Used
 

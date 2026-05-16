@@ -32,13 +32,14 @@ S3: cloud-lab-bucket-kittin          Lambda Scheduler (Terraform)
   Lifecycle → Glacier after 90 days    🔴 6 PM  → ASG/RDS OFF
 ```
 
-**Live URL:** `http://cloud-lab-alb-521128514.ap-southeast-1.elb.amazonaws.com`
+**Live URL:** [http://cloud-lab-alb-521128514.ap-southeast-1.elb.amazonaws.com](http://cloud-lab-alb-521128514.ap-southeast-1.elb.amazonaws.com)
 
 ---
 
 ## 📦 What Was Built
 
 ### Phase 1 — VPC & Networking
+> Build the private network that isolates all resources. Define IP ranges, split into public (internet-facing) and private (internal-only) subnets across two availability zones, then connect public subnets to the internet via an Internet Gateway and Route Table.
 
 | Resource | Value |
 |---|---|
@@ -51,6 +52,7 @@ S3: cloud-lab-bucket-kittin          Lambda Scheduler (Terraform)
 | Route Table | `cloud-lab-public-rt` → `0.0.0.0/0` → IGW → public subnets |
 
 ### Phase 2 — Security Groups
+> Act as virtual firewalls that control exactly what traffic is allowed in and out of each resource. Traffic flows in one direction only — internet → ALB → EC2 → RDS — so nothing is exposed more than it needs to be.
 
 | Security Group | Rules |
 |---|---|
@@ -59,6 +61,7 @@ S3: cloud-lab-bucket-kittin          Lambda Scheduler (Terraform)
 | `cloud-lab-rds-sg` | MySQL 3306 from `ec2-sg` only |
 
 ### Phase 3 — Database
+> Provision a managed MySQL database inside the private subnets so it is never directly reachable from the internet. Only EC2 instances with the correct security group can connect to it on port 3306.
 
 - **RDS Subnet Group:** `cloud-lab-db-subnet-group` (both private subnets)
 - **RDS Instance:** `cloud-lab-db`
@@ -67,6 +70,7 @@ S3: cloud-lab-bucket-kittin          Lambda Scheduler (Terraform)
   - Security group: `cloud-lab-rds-sg`
 
 ### Phase 4 — Compute
+> Launch EC2 web servers through an Auto Scaling Group so the number of instances automatically grows or shrinks based on CPU load. The Application Load Balancer sits in front and distributes incoming HTTP traffic evenly across healthy instances.
 
 - **Launch Template:** `cloud-lab-lt`
   - AMI: Amazon Linux · Instance type: `t2.micro`
@@ -80,6 +84,7 @@ S3: cloud-lab-bucket-kittin          Lambda Scheduler (Terraform)
   - ALB: `cloud-lab-alb` + target group created during setup
 
 ### Phase 5 — Storage
+> Store files and static assets in S3 with versioning enabled so every change is recoverable. A lifecycle rule automatically moves older objects to Glacier (cold storage) after 90 days to cut storage costs. CloudFront (CDN) was planned but skipped pending account verification.
 
 - **S3 Bucket:** `cloud-lab-bucket-kittin`
   - Versioning: **enabled**
@@ -87,6 +92,7 @@ S3: cloud-lab-bucket-kittin          Lambda Scheduler (Terraform)
 - **CloudFront:** skipped (account not yet verified at time of lab)
 
 ### Phase 6 — Cost Scheduler (Terraform)
+> Automatically shut down EC2 and RDS every evening and restart them each morning using Lambda functions triggered by EventBridge cron rules. The entire scheduler stack is written as Terraform infrastructure-as-code so it can be deployed or destroyed in one command. This saves cost by ensuring resources only run during working hours.
 
 Folder: `cloud-lab-scheduler/`
 
@@ -119,21 +125,6 @@ terraform apply   # ✅ 16 resources created
 
 ---
 
-## 🐛 Bugs Encountered & Fixed
-
-| # | Bug | Fix |
-|---|---|---|
-| 1 | VPC created with `/24` CIDR (too small) | Deleted and recreated with `/16` |
-| 2 | EC2 had no public IP | Enabled auto-assign public IP in launch template → instance refresh |
-| 3 | Browser showed `ERR_CONNECTION_REFUSED` | Installed Apache (`httpd`) on EC2 |
-| 4 | Target group showed **Unhealthy** | Fixed after web server was installed |
-| 5 | Browser still not loading | Used `http://` instead of `https://` |
-| 6 | `echo` failed due to `!` character | Removed `!` from HTML string (bash history expansion) |
-| 7 | Semicolons `;` in `main.tf` invalid | Rewrote entire Terraform file correctly |
-| 8 | CloudFront distribution failed | Account not yet verified — skipped for now |
-
----
-
 ## 🛠️ AWS Services Used
 
 | Service | Purpose |
@@ -153,14 +144,6 @@ terraform apply   # ✅ 16 resources created
 
 ## ✅ Final Result
 
-- 🌐 **Website live** at `http://cloud-lab-alb-521128514.ap-southeast-1.elb.amazonaws.com`
+- 🌐 **Website live** at [http://cloud-lab-alb-521128514.ap-southeast-1.elb.amazonaws.com](http://cloud-lab-alb-521128514.ap-southeast-1.elb.amazonaws.com)
 - ⏰ **Auto ON/OFF** — 9 AM to 6 PM weekdays (Bangkok time) to save cost
 - 🏗️ **Full production-pattern AWS architecture** running on a free-tier budget
-
----
-
-## 👤 Author
-
-**Kittin Phummarawong** · [@kittin-phm](https://github.com/kittin-phm)
-
-*Built as a hands-on AWS cloud infrastructure lab — from VPC to auto-scaling to cost automation.*

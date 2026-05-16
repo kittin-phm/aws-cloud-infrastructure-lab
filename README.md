@@ -94,6 +94,18 @@ S3: cloud-lab-bucket-kittin          Lambda Scheduler (Terraform)
 ### Phase 6 — Cost Scheduler (Terraform)
 > Automatically shut down EC2 and RDS every evening and restart them each morning using Lambda functions triggered by EventBridge cron rules. The entire scheduler stack is written as Terraform infrastructure-as-code so it can be deployed or destroyed in one command. This saves cost by ensuring resources only run during working hours.
 
+## Phase 7 — Monitoring (CloudWatch)
+
+Set up a CloudWatch dashboard to visualise EC2 and RDS CPU metrics in real time. An alarm watches EC2 CPU utilisation and fires an SNS notification email whenever it exceeds 70% — so any unexpected load spike is caught immediately.
+
+| Resource | Value |
+|---|---|
+| Dashboard | `cloud-lab-dashboard` |
+| EC2 Widget | CPUUtilization · Auto Scaling Group `cloud-lab-asg` |
+| RDS Widget | CPUUtilization · DB instance `cloud-lab-db` |
+| Alarm | `cloud-lab-cpu-alarm` · triggers when CPU > 70% for 5 minutes |
+| Notification | SNS topic `cloud-lab-alerts` · email alert on breach |
+
 Folder: `cloud-lab-scheduler/`
 
 ```
@@ -139,7 +151,8 @@ terraform apply   # ✅ 16 resources created
 | **EventBridge** | Cron triggers for the Lambda scheduler |
 | **IAM** | Roles and policies for Lambda permissions |
 | **Terraform** | Infrastructure-as-code for the scheduler stack |
-
+| CloudWatch | CPU dashboards for EC2 and RDS + SNS email alarm at 70% threshold |
+| SNS | Email notification topic triggered by CloudWatch alarm |
 ---
 
 ## ✅ Final Result

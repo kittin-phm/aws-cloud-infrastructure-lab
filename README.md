@@ -151,8 +151,8 @@ Set up a CloudWatch dashboard to visualise EC2 and RDS CPU metrics in real time.
 | **EventBridge** | Cron triggers for the Lambda scheduler |
 | **IAM** | Roles and policies for Lambda permissions |
 | **Terraform** | Infrastructure-as-code for the scheduler stack |
-| CloudWatch | CPU dashboards for EC2 and RDS + SNS email alarm at 70% threshold |
-| SNS | Email notification topic triggered by CloudWatch alarm |
+| **CloudWatch** | CPU dashboards for EC2 and RDS + SNS email alarm at 70% threshold |
+|** SNS **| Email notification topic triggered by CloudWatch alarm |
 ---
 
 ## ✅ Final Result
